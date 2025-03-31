@@ -1327,6 +1327,136 @@
                 rgba(var(--rgb-1), 0.8), 
                 rgba(var(--rgb-2), 0.6));
         }
+
+        /* Hadith Dialog */
+        .hadith-dialog {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 350px;
+            max-width: calc(100% - 40px);
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            z-index: 1000;
+            transform: translateY(120%);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-left: 5px solid var(--primary);
+            opacity: 0;
+        }
+
+        .hadith-dialog.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .hadith-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .hadith-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hadith-title i {
+            font-size: 20px;
+        }
+
+        .close-hadith {
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            font-size: 18px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-hadith:hover {
+            color: var(--primary);
+        }
+
+        .hadith-content {
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 15px;
+            text-align: right;
+        }
+
+        .hadith-arabic {
+            font-family: 'Amiri', serif;
+            font-size: 18px;
+            line-height: 2;
+            color: var(--text);
+            margin-bottom: 10px;
+            text-align: right;
+        }
+
+        .hadith-translation {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .hadith-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .hadith-source {
+            font-style: italic;
+        }
+
+        .hadith-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .hadith-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .hadith-checkbox input {
+            cursor: pointer;
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(120%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutDown {
+            from {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(120%);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1384,6 +1514,35 @@
             </div>
         </div>
     </div>
+
+    <!-- Hadith Dialog -->
+    <div class="hadith-dialog" id="hadithDialog">
+    <div class="hadith-header">
+        <div class="hadith-title">
+            <i class="fas fa-quote-right"></i>
+            <span>Hadits Hari Ini</span>
+        </div>
+        <button class="close-hadith" id="closeHadith">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="hadith-content">
+        <div class="hadith-arabic">
+            خَيْرُ النَّاسِ أَنْفَعُهُمْ لِلنَّاسِ
+        </div>
+        <div class="hadith-translation">
+            "Sebaik-baik manusia adalah yang paling bermanfaat bagi manusia lainnya." (HR. Ath-Thabrani, Al-Mu'jam Al-Awsath)
+        </div>
+    </div>
+    <div class="hadith-footer">
+        <div class="hadith-source">HR. Ath-Thabrani</div>
+        <div class="hadith-actions">
+            <label class="hadith-checkbox">
+                <input type="checkbox" id="dontShowAgain"> Jangan tampilkan lagi
+            </label>
+        </div>
+    </div>
+</div>
 
     <div class="audio-player" id="audioPlayer">
         <div class="audio-controls">
@@ -1589,6 +1748,9 @@
             const facebookShare = document.getElementById('facebookShare');
             const twitterShare = document.getElementById('twitterShare');
             const telegramShare = document.getElementById('telegramShare');
+            const hadithDialog = document.getElementById('hadithDialog');
+            const closeHadith = document.getElementById('closeHadith');
+            const dontShowAgain = document.getElementById('dontShowAgain');
 
             // State
             let surahs = [];
@@ -1613,6 +1775,15 @@
             
             // Hide FAB initially
             fab.style.display = 'none';
+
+            // Show hadith dialog if not set to "don't show again"
+            const dontShowHadith = localStorage.getItem('dontShowHadith') === 'true';
+
+           if (!dontShowHadith) {
+           setTimeout(() => {
+          hadithDialog.classList.add('show');
+    }, 3000);
+}
 
             // Event Listeners
             settingsToggleBtn.addEventListener('click', toggleSettings);
@@ -1641,6 +1812,17 @@
             facebookShare.addEventListener('click', shareToFacebook);
             twitterShare.addEventListener('click', shareToTwitter);
             telegramShare.addEventListener('click', shareToTelegram);
+            closeHadith.addEventListener('click', closeHadithDialog);
+            dontShowAgain.addEventListener('change', function() {
+                localStorage.setItem('dontShowHadith', this.checked);
+            });
+
+            function closeHadithDialog() {
+                hadithDialog.classList.remove('show');
+                setTimeout(() => {
+                    hadithDialog.style.display = 'none';
+                }, 500);
+            }
 
             async function fetchSurahs() {
                 try {
